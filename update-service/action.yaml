@@ -23,12 +23,10 @@ runs:
 
     - uses: Fyve-Labs/actions/tailscale@main
       with:
-        authkeySecretName: /headscale/TS_AUTHKEY
+        authkey-secret-name: /headscale/TS_AUTHKEY
 
-    - name: Setup Fyve Cli
-      shell: bash
-      run: |
-        curl -sfL https://github.com/Fyve-Labs/fyve-cli/raw/main/install.sh | bash
+    - name: Install Fyve Cli
+      uses: Fyve-Labs/actions/install-fyve-client@main
 
     - name: Install Knative Client
       shell: bash
