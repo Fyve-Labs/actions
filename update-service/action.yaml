@@ -28,6 +28,7 @@ runs:
       uses: tailscale/github-action@v3
       with:
         authkey: ${{ steps.get-authkey.outputs.authkey }}
+        args: --login-server https://vpn.fyve.dev
         version: latest
 
     - name: Setup Fyve Cli
