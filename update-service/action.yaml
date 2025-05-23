@@ -1,0 +1,50 @@
+name: 'UpdateService'
+description: 'Update a service backed by Knative serving'
+inputs:
+  service:
+    description: 'Service name'
+    required: true
+  image:
+    description: 'Image'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::209479271613:role/GithubFederatedIdentityRole
+        aws-region: us-east-1
+
+    - name: Login to ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Tailscale
+      uses: tailscale/github-action@v3
+      with:
+        authkey: ${{ secrets.HEADSCALE_VPN_AUTHKEY }}
+        version: latest
+
+    - name: Setup Fyve Cli
+      shell: bash
+      run: |
+        curl -sfL https://github.com/Fyve-Labs/fyve-cli/raw/main/install.sh | bash
+
+    - name: Install Knative Client
+      shell: bash
+      run: |
+        mkdir -p "$HOME/.bin"
+        curl -sfL https://github.com/knative/client/releases/download/knative-v1.18.0/kn-linux-amd64 -o "$HOME/.bin/kn"
+        echo "$HOME/.bin" >> $GITHUB_PATH
+
+    - name: Update image
+      shell: bash
+      run: |
+        fyve kubeconfig > kubeconfig
+        kn service update $SERVICE_NAME --image $IMAGE --kubeconfig=kubeconfig
+      env:
+        SERVICE_NAME: ${{ inputs.service }}
+        IMAGE: ${{ inputs.image }}
+
