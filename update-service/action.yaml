@@ -17,14 +17,17 @@ runs:
         role-to-assume: arn:aws:iam::209479271613:role/GithubFederatedIdentityRole
         aws-region: us-east-1
 
-    - name: Login to ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+    - name: Set TS Auth Key
+      id: get-authkey
+      shell: bash
+      run: |
+        TS_AUTHKEY=(aws ssm get-parameter --name "/headscale/TS_AUTHKEY" --with-decryption --query Parameter.Value --output text)
+        echo "authkey=$TS_AUTHKEY" >> $GITHUB_OUTPUT
 
     - name: Tailscale
       uses: tailscale/github-action@v3
       with:
-        authkey: ${{ secrets.HEADSCALE_VPN_AUTHKEY }}
+        authkey: ${{ steps.get-authkey.outputs.authkey }}
         version: latest
 
     - name: Setup Fyve Cli
