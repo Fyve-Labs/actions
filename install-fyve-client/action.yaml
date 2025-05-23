@@ -1,4 +1,3 @@
-name: 'InstallFyveClient'
 inputs:
   version:
     description: Version
@@ -8,7 +7,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install Fyve Cli
+    - name: Setup Fyve Cli
       shell: bash
       run: |
         curl -sfL https://github.com/Fyve-Labs/fyve-cli/raw/main/install.sh | bash

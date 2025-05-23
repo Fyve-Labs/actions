@@ -15,11 +15,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::209479271613:role/GithubFederatedIdentityRole
-        aws-region: us-east-1
+    - uses: Fyve-Labs/actions/configure-aws-credentials@main
 
     - uses: Fyve-Labs/actions/tailscale@main
       with:
