@@ -30,4 +30,4 @@ runs:
       with:
         authkey: ${{ steps.get-authkey.outputs.authkey }}
         args: --login-server ${{ inputs.loginServer }}
-        version: {{ inputs.version }}
+        version: ${{ inputs.version }}
