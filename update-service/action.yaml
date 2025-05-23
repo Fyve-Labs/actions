@@ -21,7 +21,7 @@ runs:
       id: get-authkey
       shell: bash
       run: |
-        TS_AUTHKEY=(aws ssm get-parameter --name "/headscale/TS_AUTHKEY" --with-decryption --query Parameter.Value --output text)
+        TS_AUTHKEY=$(aws ssm get-parameter --name "/headscale/TS_AUTHKEY" --with-decryption --query Parameter.Value --output text)
         echo "authkey=$TS_AUTHKEY" >> $GITHUB_OUTPUT
 
     - name: Tailscale
