@@ -2,11 +2,23 @@ name: 'UpdateService'
 description: 'Update a service backed by Knative serving'
 inputs:
   service:
-    description: 'Service name'
+    description: Service name
     required: true
   image:
-    description: 'Image'
+    description: Image
     required: true
+  namespace:
+    description: Namespace
+    required: false
+    default: "default"
+  ssmAuthkeyName:
+    description: SSM Authkey name
+    required: false
+    default: /headscale/TS_AUTHKEY
+  tailscaleLoginServer:
+    description: Custom Tailscale control plane url
+    required: false
+    default: https://vpn.fyve.dev
 
 runs:
   using: "composite"
@@ -20,15 +32,17 @@ runs:
     - name: Set TS Auth Key
       id: get-authkey
       shell: bash
+      env:
+        SSM_AUTHKEY_NAME: ${{ inputs.ssmAuthkeyName }}
       run: |
-        TS_AUTHKEY=$(aws ssm get-parameter --name "/headscale/TS_AUTHKEY" --with-decryption --query Parameter.Value --output text)
+        TS_AUTHKEY=$(aws ssm get-parameter --name $SSM_AUTHKEY_NAME --with-decryption --query Parameter.Value --output text)
         echo "authkey=$TS_AUTHKEY" >> $GITHUB_OUTPUT
 
     - name: Tailscale
       uses: tailscale/github-action@v3
       with:
         authkey: ${{ steps.get-authkey.outputs.authkey }}
-        args: --login-server https://vpn.fyve.dev
+        args: --login-server ${{ inputs.tailscaleLoginServer }}
         version: latest
 
     - name: Setup Fyve Cli
@@ -39,17 +53,16 @@ runs:
     - name: Install Knative Client
       shell: bash
       run: |
-        mkdir -p "$HOME/.bin"
-        curl -sfL https://github.com/knative/client/releases/download/knative-v1.18.0/kn-linux-amd64 -o "$HOME/.bin/kn"
-        chmod +x "$HOME/.bin/kn"
-        echo "$HOME/.bin" >> $GITHUB_PATH
+        curl -o kn -sfL https://github.com/knative/client/releases/download/knative-v1.18.0/kn-linux-amd64
+        sudo install -c -m 0755 kn /usr/local/bin
 
     - name: Update image
       shell: bash
       run: |
         fyve kubeconfig > kubeconfig
-        kn service update $SERVICE_NAME --image $IMAGE --kubeconfig=kubeconfig
+        kn service update $SERVICE --image $IMAGE --kubeconfig=kubeconfig -n $NAMESPACE
       env:
-        SERVICE_NAME: ${{ inputs.service }}
+        SERVICE: ${{ inputs.service }}
+        NAMESPACE: ${{ inputs.namespace }}
         IMAGE: ${{ inputs.image }}
 
