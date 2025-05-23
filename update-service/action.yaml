@@ -41,6 +41,7 @@ runs:
       run: |
         mkdir -p "$HOME/.bin"
         curl -sfL https://github.com/knative/client/releases/download/knative-v1.18.0/kn-linux-amd64 -o "$HOME/.bin/kn"
+        chmod +x "$HOME/.bin/kn"
         echo "$HOME/.bin" >> $GITHUB_PATH
 
     - name: Update image
