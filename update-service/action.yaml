@@ -1,5 +1,5 @@
 name: 'UpdateService'
-description: 'Update a service backed by Knative serving'
+description: 'Update a service backed by Knative Serving'
 inputs:
   service:
     description: Service name
@@ -11,14 +11,6 @@ inputs:
     description: Namespace
     required: false
     default: "default"
-  ssmAuthkeyName:
-    description: SSM Authkey name
-    required: false
-    default: /headscale/TS_AUTHKEY
-  tailscaleLoginServer:
-    description: Custom Tailscale control plane url
-    required: false
-    default: https://vpn.fyve.dev
 
 runs:
   using: "composite"
@@ -29,21 +21,9 @@ runs:
         role-to-assume: arn:aws:iam::209479271613:role/GithubFederatedIdentityRole
         aws-region: us-east-1
 
-    - name: Set TS Auth Key
-      id: get-authkey
-      shell: bash
-      env:
-        SSM_AUTHKEY_NAME: ${{ inputs.ssmAuthkeyName }}
-      run: |
-        TS_AUTHKEY=$(aws ssm get-parameter --name $SSM_AUTHKEY_NAME --with-decryption --query Parameter.Value --output text)
-        echo "authkey=$TS_AUTHKEY" >> $GITHUB_OUTPUT
-
-    - name: Tailscale
-      uses: tailscale/github-action@v3
+    - uses: Fyve-Labs/actions/tailscale@main
       with:
-        authkey: ${{ steps.get-authkey.outputs.authkey }}
-        args: --login-server ${{ inputs.tailscaleLoginServer }}
-        version: latest
+        authkeySecretName: /headscale/TS_AUTHKEY
 
     - name: Setup Fyve Cli
       shell: bash

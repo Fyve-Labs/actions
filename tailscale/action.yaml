@@ -1,0 +1,33 @@
+name: 'Tailscale'
+inputs:
+  authkeySecretName:
+    description: SSM Authkey name
+    required: false
+    default: /headscale/TS_AUTHKEY
+  loginServer:
+    description: Custom Tailscale control plane server URL
+    required: false
+    default: https://vpn.fyve.dev
+  version:
+    description: Tailscale version
+    required: false
+    default: latest
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get Tailscale Auth Key
+      id: get-authkey
+      shell: bash
+      env:
+        AUTHKEY_SECRET_NAME: ${{ inputs.authkeySecretName }}
+      run: |
+        TS_AUTHKEY=$(aws ssm get-parameter --name $AUTHKEY_SECRET_NAME --with-decryption --query Parameter.Value --output text)
+        echo -n "authkey=$TS_AUTHKEY" >> $GITHUB_OUTPUT
+
+    - name: Tailscale
+      uses: tailscale/github-action@v3
+      with:
+        authkey: ${{ steps.get-authkey.outputs.authkey }}
+        args: --login-server ${{ inputs.loginServer }}
+        version: {{ inputs.version }}
