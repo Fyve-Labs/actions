@@ -1,0 +1,15 @@
+name: 'FyveDeploy'
+description: 'Deploy Serverless service using Fyve Cli'
+runs:
+  using: "composite"
+  steps:
+    - uses: Fyve-Labs/actions/configure-aws-credentials@main
+
+    - uses: Fyve-Labs/actions/tailscale@main
+
+    - uses: Fyve-Labs/actions/install-fyve-client@main
+
+    - name: Fyve Deploy
+      shell: bash
+      run: fyve deploy
+

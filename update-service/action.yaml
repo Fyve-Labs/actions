@@ -18,11 +18,8 @@ runs:
     - uses: Fyve-Labs/actions/configure-aws-credentials@main
 
     - uses: Fyve-Labs/actions/tailscale@main
-      with:
-        authkey-secret-name: /headscale/TS_AUTHKEY
 
-    - name: Install Fyve Cli
-      uses: Fyve-Labs/actions/install-fyve-client@main
+    - uses: Fyve-Labs/actions/install-fyve-client@main
 
     - name: Install Knative Client
       shell: bash
