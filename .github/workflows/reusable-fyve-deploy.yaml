@@ -1,7 +1,11 @@
 name: Fyve Deploy
 
 on:
-  workflow_call: {}
+  workflow_call:
+    inputs:
+      path:
+        required: false
+        type: string
 
 jobs:
   build:
@@ -10,3 +14,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: Fyve-Labs/actions/fyve-deploy@main
+        with:
+          work-dir: ${{ inputs.path || '' }}
