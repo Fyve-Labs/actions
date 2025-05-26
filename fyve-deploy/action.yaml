@@ -1,5 +1,12 @@
-name: 'FyveDeploy'
-description: 'Deploy Serverless service using Fyve Cli'
+name: 'Fyve Deploy'
+description: 'Deploy Serverless application using Fyve Cli'
+
+inputs:
+  work-dir:
+    description: Work dir
+    required: false
+    default: ''
+
 runs:
   using: "composite"
   steps:
@@ -11,5 +18,17 @@ runs:
 
     - name: Fyve Deploy
       shell: bash
-      run: fyve deploy
+      env:
+        FYVE_WORK_DIR: ${{ inputs.work-dir }}
+      run: |
+        if [ "$FYVE_WORK_DIR" != "" ]; then
+          if [ ! -d "$FYVE_WORK_DIR" ]; then
+            echo Work dir "$FYVE_WORK_DIR" does not exists
+            exit 1
+          fi
+        
+          cd $FYVE_WORK_DIR
+        fi
+        
+        fyve deploy
 
