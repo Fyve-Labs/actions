@@ -31,3 +31,4 @@ runs:
         authkey: ${{ steps.get-authkey.outputs.authkey }}
         args: --login-server ${{ inputs.login-server }}
         version: ${{ inputs.version }}
+        use-cache: true
